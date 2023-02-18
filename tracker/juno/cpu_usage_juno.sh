@@ -1,6 +1,6 @@
 #!/bin/bash
 
-PNAME="papyrus_node"
-LOG_FILE="log_papyrus_cpu.txt"
+PNAME="juno"
+LOG_FILE="log_juno_cpu.txt"
 
 echo "$(date) :: $PNAME[$(pidof ${PNAME})] $(ps -C ${PNAME} -o %cpu | tail -1)%" >> $LOG_FILE

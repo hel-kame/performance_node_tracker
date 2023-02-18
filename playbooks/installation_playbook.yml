@@ -1,0 +1,46 @@
+---
+- name: Configure Credlancer environment
+  hosts: localhost
+  become: no
+
+  tasks:
+    - name: Install development tools
+      become: yes
+      apt:
+        state: present
+        name:
+          - build-essential
+          - clang
+          - git
+
+    - name: Download Go binary
+      become: yes
+      get_url:
+        url: https://go.dev/dl/go1.19.linux-amd64.tar.gz
+        dest: /usr/local/
+        mode: '644'
+
+    - name: Unarchive Go binary
+      become: yes
+      unarchive:
+        src: /usr/local/go1.19.linux-amd64.tar.gz
+        dest: /usr/local/
+
+    - name: Delete Go archive
+      become: yes
+      file:
+        state: absent
+        path: /usr/local/go1.19.linux-amd64.tar.gz
+
+    - name: Add Go binary to PATH
+      become: yes
+      lineinfile:
+        dest: /etc/profile
+        line: "{{ item }}"
+      loop:
+        - 'export GOROOT=/usr/local/go'
+        - 'export GOPATH=$HOME/go'
+        - 'export PATH=$GOPATH/bin:$GOROOT/bin:$PATH'
+
+    - name: Setting Go Environment
+      command: /bin/bash -c 'source /etc/profile'
