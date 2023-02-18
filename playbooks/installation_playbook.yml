@@ -1,5 +1,5 @@
 ---
-- name: Configure Credlancer environment
+- name: Configure Juno environment
   hosts: localhost
   become: no
 
@@ -11,6 +11,8 @@
         name:
           - build-essential
           - clang
+          - nethogs
+          - vim
           - git
 
     - name: Download Go binary
@@ -44,3 +46,23 @@
 
     - name: Setting Go Environment
       command: /bin/bash -c 'source /etc/profile'
+
+    - name: Clone Juno Repository
+      git:
+        repo: https://github.com/NethermindEth/juno
+        dest: /home/vagrant/juno
+        clone: yes
+        update: yes
+
+    - name: Build Juno
+      command:
+        chdir: ~/juno
+        cmd: make juno
+
+    - name: Add Juno Alias
+      lineinfile:
+        dest: ~/.bashrc
+        line: alias juno='$HOME/juno/build/juno'
+
+    - name: Setting Juno Environment
+      command: /bin/bash -c 'source ~/.bashrc'
