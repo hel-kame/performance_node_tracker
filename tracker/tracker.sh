@@ -10,9 +10,9 @@ then
 elif pgrep -x juno > /dev/null
 then
     PNAME="juno"
-elif pgrep -x papyrus > /dev/null
+elif pgrep -x papyrus_node > /dev/null
 then
-    PNAME="papyrus"
+    PNAME="papyrus_node"
 else
     echo "No node is currently running."
     exit 1
@@ -38,5 +38,6 @@ fi
 	TOTAL_CPU=$(tail tracker.log -n +2 | awk '{print $3}' | paste -sd+ | bc)
 	AVERAGE_CPU=$(echo ${TOTAL_CPU} / $(tail tracker.log -n +2 | wc -l) | bc)
 
-echo -e "$(date +%X)\t${CPU_USAGE}\t${RAM_USAGE}\t${RD_USAGE}\t${WR_USAGE}\t$(pidof ${PNAME})\t${PNAME}\n" >> tracker.log
+echo -e "$(date +%X)\t${CPU_USAGE}\t${RAM_USAGE}\t${RD_USAGE}\t${WR_USAGE}\t$(pidof ${PNAME})\t${PNAME}" >> tracker.log
+echo -e "$(date +%X)\t${CPU_USAGE}\t${RAM_USAGE}\t${RD_USAGE}\t${WR_USAGE}\t$(pidof ${PNAME})\t${PNAME}" >> tracker.log
 cat tracker.log
