@@ -1,0 +1,55 @@
+#!/bin/bash
+
+set -eu -o pipefail
+sudo -n true
+test $? -eq 0 || exit 1 "You should have sudo privilege to run this script."
+
+if pgrep -x pathfinder > /dev/null
+then
+    PNAME="pathfinder"
+elif pgrep -x juno > /dev/null
+then
+    PNAME="juno"
+elif pgrep -x papyrus_node > /dev/null
+then
+    PNAME="papyrus_node"
+else
+    echo "No node is currently running."
+    exit 1
+fi
+
+if [ ! -f "data_log.csv" ];
+then
+	echo -e "TIMESTAMP,CPU,MEM,PROCESS" > data_log.csv
+fi
+
+if date | grep "PM" > /dev/null
+then
+	CPU_USAGE=$(pidstat -u -C ${PNAME} | awk 'NR == 4 {print $9}')
+	RAM_USAGE=$(pidstat -r -C ${PNAME} | awk 'NR == 4 {print $9}')
+	RD_USAGE=$(pidstat -d -C ${PNAME} | awk 'NR == 4 {print $5}')
+	WR_USAGE=$(pidstat -d -C ${PNAME} | awk 'NR == 4 {print $6}')
+else
+	CPU_USAGE=$(pidstat -u -C ${PNAME} | awk 'NR == 4 {print $8}')
+	RAM_USAGE=$(pidstat -r -C ${PNAME} | awk 'NR == 4 {print $8}')
+	RD_USAGE=$(pidstat -d -C ${PNAME} | awk 'NR == 4 {print $4}')
+	WR_USAGE=$(pidstat -d -C ${PNAME} | awk 'NR == 4 {print $5}')
+fi
+
+if [ ! -f "data.tmp" ]
+then
+	sudo nethogs -t -c 2  > data.tmp
+fi
+
+if cat data.tmp | grep ${PNAME} > /dev/null
+then
+	DATA_SENT=$(cat data.tmp | grep ${PNAME} | awk '{print $2}')
+	DATA_RECEIVED=$(cat data.tmp | grep ${PNAME} | awk '{print $3}')
+	rm data.tmp
+else
+	DATA_SENT=$(echo -n "0")
+	DATA_RECEIVED=$(echo -n "0")
+	rm data.tmp
+fi
+
+echo -e "$(date +%s),${CPU_USAGE},${RAM_USAGE},${PNAME}" >> data_log.csv
