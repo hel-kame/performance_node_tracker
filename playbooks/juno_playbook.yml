@@ -12,6 +12,8 @@
           - build-essential
           - clang
           - nethogs
+          - sysstat
+          - bc
           - vim
           - git
 
